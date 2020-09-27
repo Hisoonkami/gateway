@@ -1,0 +1,61 @@
+#################################### common config : ####################################
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+      - id: aggregator
+        uri: lb://aggregator
+        predicates:
+        - Path=/**
+        filters:
+        - SwaggerHeaderFilter
+#        - StripPrefix=1
+# 应用服务web访问端口
+server:
+  port: 8082
+
+# eureka客户端配置
+eureka:
+  instance:
+    # 使用 ip 代替实例名
+    prefer-ip-address: true
+    # 实例的主机名
+    hostname: ${spring.cloud.client.ip-address}
+    # 实例的 ID 规则
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    serviceUrl:
+      # 注册中心地址
+      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+feign:
+  hystrix:
+    enabled: true
+hystrix:
+  command:
+    default:
+      circuitBreaker:
+        sleepWindowInMilliseconds: 10000
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+  threadpool:
+    default:
+      coreSize: 500
+      maximumSize: 1500 # 不开始拒绝HystrixCommands的情况下可以支持的最大并发数
+      allowMaximumSizeToDivergeFromCoreSize: true # 此属性允许maximumSize的配置生效
+      maxQueueSize: -1
+  shareSecurityContext: true
+ribbon:
+  ConnectTimeout: 30000
+  ReadTimeout: 30000
+  MaxAutoRetries: 0 # 对当前Server的重试次数
+  MaxAutoRetriesNextServer: 1 # 切换其它Server的次数
+
+  # jwt配置
+jwt:
+   secret-key: adev.top #jwt生成密钥
+   token-expire-time: 1800000 #token过期时间：30min
+   refresh-token-expire-time: 3600000 #refreshToken过期时间：60min
