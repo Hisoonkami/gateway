@@ -2,8 +2,10 @@ package com.adev.gateway.filter;
 
 import com.adev.gateway.provider.SwaggerProvider;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;

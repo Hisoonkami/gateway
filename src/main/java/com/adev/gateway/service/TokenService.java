@@ -4,24 +4,33 @@ package com.adev.gateway.service;
 import java.util.Map;
 
 import com.adev.common.base.domian.BaseResult;
+import com.adev.gateway.domain.TokenInfo;
 
 public interface TokenService {
 	/**
-	 * 根据用户信息构造新token
+	 * 生成token
+	 * @param loginName
 	 * @return
 	 */
-	public BaseResult buildToken(Map<String,Object> userInfo);
+	TokenInfo createToken(String loginName);
 	
 	/**
 	 * 刷新token
 	 * @return
 	 */
-	public BaseResult refreshToken(String refreshToken);
+	BaseResult refreshToken(String refreshToken);
 	
 	/**
 	 * 验证token
 	 * @param token
 	 * @return
 	 */
-	public BaseResult verifyToken(String token);
+	BaseResult verifyToken(String token);
+
+	/**
+	 * 从token用户信息
+	 * @param token
+	 * @return
+	 */
+	String getUserFromToken(String token);
 }

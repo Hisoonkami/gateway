@@ -11,7 +11,12 @@ import com.adev.gateway.service.AccountFeignClient;
 public class AccountFeignClientImpl implements AccountFeignClient {
 
 	@Override
-	public ResponseEntity<BaseResult> login(String loginName, String password) {
+	public ResponseEntity<BaseResult> findByLoginName(String loginName) {
+		return ResponseEntity.ok(BaseResult.failure(ResultEnum.INTERFACE_EXCEED_LOAD));
+	}
+
+	@Override
+	public ResponseEntity<BaseResult> authentication(String loginName, String permissionCode) {
 		return ResponseEntity.ok(BaseResult.failure(ResultEnum.INTERFACE_EXCEED_LOAD));
 	}
 

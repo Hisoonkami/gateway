@@ -3,6 +3,7 @@ package com.adev.gateway.service.impl;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,20 +25,20 @@ public class TokenServiceImpl implements TokenService {
 	private JwtConfig jwtConfig;
 	
 	@Override
-	public BaseResult buildToken(Map<String,Object> userInfo) {
+	public TokenInfo createToken(String loginName) {
 		Date now = new Date();
-        String secretKey=jwtConfig.getSecretKey();
-        Date tokenExpDate=new Date(now.getTime() + jwtConfig.getTokenExpireTime());
-        Date refreshTokenExpDate=new Date(now.getTime() + jwtConfig.getRefreshTokenExpireTime());
-        TokenInfo tokenInfo=new TokenInfo();
-        tokenInfo.setToken(buildToken(secretKey, tokenExpDate, userInfo));
-        tokenInfo.setRefreshToken(buildToken(secretKey, refreshTokenExpDate, userInfo));
-		return BaseResult.success(tokenInfo);
+		String secretKey=jwtConfig.getSecretKey();
+		Date tokenExpDate=new Date(now.getTime() + jwtConfig.getTokenExpireTime());
+		Date refreshTokenExpDate=new Date(now.getTime() + jwtConfig.getRefreshTokenExpireTime());
+		TokenInfo tokenInfo=new TokenInfo();
+		tokenInfo.setToken(buildToken(secretKey, tokenExpDate, loginName));
+		tokenInfo.setRefreshToken(buildToken(secretKey, refreshTokenExpDate, loginName));
+		return tokenInfo;
 	}
 
-	private String buildToken(String secretKey,Date exp,Map<String,Object> claims) {
+	private String buildToken(String secretKey,Date exp,String loginName) {
 		JwtBuilder jwtBuilder=Jwts.builder().setExpiration(exp).signWith(SignatureAlgorithm.HS256, secretKey);
-		jwtBuilder.addClaims(claims);
+		jwtBuilder.claim("loginName",loginName);
 		return jwtBuilder.compact();
 	}
 	
@@ -45,12 +46,12 @@ public class TokenServiceImpl implements TokenService {
 	public BaseResult refreshToken(String refreshToken) {
 		BaseResult result=verifyToken(refreshToken);
 		if(ResultEnum.SUCCESS.code().equals(result.getCode())) {
-			Map<String, Object> userInfo=null;
-			Object data=result.getData();
-			if(null!=data) {
-				userInfo=(Map)data;
+			String loginName=getUserFromToken(refreshToken);
+			if(StringUtils.isNotBlank(loginName)){
+				return BaseResult.success(createToken(loginName));
+			}else {
+				BaseResult.failure(ResultEnum.USER_NOT_EXIST);
 			}
-			return buildToken(userInfo);
 		}
 		return result;
 	}
@@ -66,6 +67,22 @@ public class TokenServiceImpl implements TokenService {
 			e.printStackTrace();
 			return BaseResult.failure(ResultEnum.TOKEN_ILLEGAL);
 		}
+	}
+
+	@Override
+	public String getUserFromToken(String token) {
+		try {
+			Map<String, Object> claims=Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(token).getBody();
+			if(null!=claims){
+				return String.valueOf(claims.get("loginName"));
+			}
+		} catch (ExpiredJwtException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return null;
 	}
 
 }
