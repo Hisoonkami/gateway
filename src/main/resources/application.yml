@@ -16,19 +16,6 @@ spring:
 server:
   port: 8082
 
-# eureka客户端配置
-eureka:
-  instance:
-    # 使用 ip 代替实例名
-    prefer-ip-address: true
-    # 实例的主机名
-    hostname: ${spring.cloud.client.ip-address}
-    # 实例的 ID 规则
-    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
-  client:
-    serviceUrl:
-      # 注册中心地址
-      defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/
 feign:
   hystrix:
     enabled: true
@@ -59,3 +46,39 @@ jwt:
    secret-key: adev.top #jwt生成密钥
    token-expire-time: 1800000 #token过期时间：30min
    refresh-token-expire-time: 3600000 #refreshToken过期时间：60min
+---
+#################################### test config : ####################################
+spring:
+  profiles: test
+
+# eureka客户端配置
+eureka:
+  instance:
+    # 使用 ip 代替实例名
+    prefer-ip-address: true
+    # 实例的主机名
+    hostname: ${spring.cloud.client.ip-address}
+    # 实例的 ID 规则
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    serviceUrl:
+      # 注册中心地址
+      defaultZone: http://adev.top:8761/eureka/,http://adev.top:8762/eureka/
+---
+#################################### dev config : ####################################
+spring:
+  profiles: dev
+
+# eureka客户端配置
+eureka:
+  instance:
+    # 使用 ip 代替实例名
+    prefer-ip-address: true
+    # 实例的主机名
+    hostname: ${spring.cloud.client.ip-address}
+    # 实例的 ID 规则
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    serviceUrl:
+      # 注册中心地址
+      defaultZone: http://127.0.0.1:8761/eureka/
